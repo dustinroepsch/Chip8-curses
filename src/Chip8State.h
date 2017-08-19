@@ -5,6 +5,7 @@
 #define CHIP8_SCREEN_HEIGHT 32
 
 #include <stdint.h>
+#include <stdio.h>
 #include <stdbool.h>
 
 typedef struct {
@@ -18,8 +19,10 @@ typedef struct {
     uint8_t sp;
 } chip8_state_t;
 
-void init_chip8_state(chip8_state_t* state);
+void chip8_state_init(chip8_state_t* state);
 
-void free_chip8_state(chip8_state_t* state);
+void chip8_state_free(chip8_state_t* state);
+
+void chip8_load_cartridge(chip8_state_t* state, FILE* cart);
 
 #endif /* CHIP8_CHIP8STATE_H */ 

@@ -1,7 +1,8 @@
 #include "Chip8State.h"
 #include <stdlib.h>
+#include <inttypes.h>
 
-void init_chip8_state(chip8_state_t* state) {
+void chip8_state_init(chip8_state_t* state) {
     state->memory = calloc(4096, sizeof(uint8_t));
     state->v = calloc(0xF, sizeof(uint8_t));
     state->stack = calloc(16, sizeof(uint16_t));    
@@ -12,9 +13,17 @@ void init_chip8_state(chip8_state_t* state) {
     state->sp = 0;
 }
 
-void free_chip8_state(chip8_state_t* state) {
+void chip8_state_free(chip8_state_t* state) {
     free(state->memory);
     free(state->v);
     free(state->stack);
     free(state->screen);
+}
+
+void chip8_load_cartridge(chip8_state_t* state, FILE* cart) {
+    fseek(cart, 0, SEEK_END);
+    size_t file_length = ftell(cart);
+    rewind(cart);
+
+    fread(state->memory, file_length, 1, cart);
 }
