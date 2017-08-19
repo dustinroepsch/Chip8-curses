@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <stdio.h>
 #include "Chip8State.h"
+#include "decoder.h"
 
 int main(int argc, char **argv)
 {
@@ -22,10 +23,15 @@ int main(int argc, char **argv)
 	chip8_load_cartridge(&state, cart);
 	fclose(cart);
 
-	for (size_t i = 0; i < 4096; i++)
-	{
-		printf("%x ", state.memory[i]);
-	}
+	opcode_t test_opcode = {.bits = 0xABCD};
+	printf(
+		"I = %x, X = %x, Y = %x, J = %x, NNN = %x, KK = %x \n",
+		test_opcode.I,
+		test_opcode.X,
+		test_opcode.Y,
+		test_opcode.J,
+		test_opcode.NNN,
+		test_opcode.KK);
 
 	chip8_state_free(&state);
 	return 0;
