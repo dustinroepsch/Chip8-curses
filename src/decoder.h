@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 typedef struct {
+  uint16_t full_opcode;
   uint8_t I;
   uint8_t X;
   uint8_t Y;
