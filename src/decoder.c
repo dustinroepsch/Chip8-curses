@@ -32,9 +32,10 @@ instruction_t decoder_opcode_to_instruction(uint16_t opcode) {
 
 void decoder_execute_instruction(chip8_state_t *state,
                                  instruction_t instruction) {
-                                    if (state->delay_timer > 0) state->delay_timer--;
-                                    if (state->sound_timer >0) state->sound_timer--;
-
+  if (state->delay_timer > 0)
+    state->delay_timer--;
+  if (state->sound_timer > 0)
+    state->sound_timer--;
 
   debug_printf("%x ", instruction.full_opcode);
   switch (instruction.I) {
