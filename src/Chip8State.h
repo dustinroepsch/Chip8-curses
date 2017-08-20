@@ -12,7 +12,9 @@ typedef struct {
   uint8_t *memory;
   uint8_t *v;
   uint16_t *stack;
+  bool *keyboard;
   bool *screen;
+  uint16_t I;
   uint8_t sound_timer;
   uint8_t delay_timer;
   uint16_t pc;

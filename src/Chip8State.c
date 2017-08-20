@@ -6,8 +6,10 @@ void chip8_state_init(chip8_state_t *state) {
   state->memory = calloc(4096, sizeof(uint8_t));
   state->v = calloc(0xF, sizeof(uint8_t));
   state->stack = calloc(16, sizeof(uint16_t));
+  state->keyboard = calloc(0xF, sizeof(bool));
   state->screen =
       calloc(CHIP8_SCREEN_HEIGHT * CHIP8_SCREEN_WIDTH, sizeof(bool));
+  state->I = 0;
   state->sound_timer = 0;
   state->delay_timer = 0;
   state->pc = 0x200;
@@ -18,6 +20,7 @@ void chip8_state_free(chip8_state_t *state) {
   free(state->memory);
   free(state->v);
   free(state->stack);
+  free(state->keyboard);
   free(state->screen);
 }
 
