@@ -222,14 +222,20 @@ void decoder_execute_instruction(chip8_state_t *state,
         "V[%x]), set VF = collision.\n",
         instruction.J, instruction.X, instruction.Y);
     bool collision = false;
+
+    //x and y wrap around the screen
+    size_t x = state->v[instruction.X];
+    x = x % CHIP8_SCREEN_WIDTH;
+
+    size_t y = state->v[instruction.Y];
+    y = y % CHIP8_SCREEN_HEIGHT;
+
     for (size_t offset = 0; offset < instruction.J; offset++) {
       uint8_t current_byte = state->memory[state->I + offset];
       debug_printf("drawing %x\n", current_byte);
       for (size_t bit = 0; bit < 8; bit++) {
         if ((current_byte & (1 << (7 - bit))) != 0) {
-          size_t screen_offset =
-              (state->v[instruction.Y] + offset) * CHIP8_SCREEN_WIDTH +
-              state->v[instruction.X] + bit;
+          size_t screen_offset = (y + offset) * CHIP8_SCREEN_WIDTH + x + bit;
           if (state->screen[screen_offset]) {
             collision = true;
           }
@@ -276,7 +282,8 @@ void decoder_execute_instruction(chip8_state_t *state,
       debug_printf(
           "Wait for a key press, store the value of the key in V[%x].\n",
           instruction.X);
-      // TODO
+      state->waiting_for_key_press = true;
+      state->register_to_save_key = instruction.X;
       break;
     case 0x15:
       debug_printf("Set delay timer = V[%x].\n", instruction.X);

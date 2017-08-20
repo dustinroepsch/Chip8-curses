@@ -19,6 +19,8 @@ typedef struct {
   uint8_t delay_timer;
   uint16_t pc;
   uint8_t sp;
+  bool waiting_for_key_press;
+  size_t register_to_save_key;
 } chip8_state_t;
 
 void chip8_state_init(chip8_state_t *state);

@@ -14,6 +14,8 @@ void chip8_state_init(chip8_state_t *state) {
   state->delay_timer = 0;
   state->pc = 0x200;
   state->sp = 0;
+  state->waiting_for_key_press = false;
+  state->register_to_save_key = 0;
 
   const uint8_t fontset[0x10 * 5] = {
       0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
