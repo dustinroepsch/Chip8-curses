@@ -19,10 +19,10 @@ int main(int argc, char **argv) {
   chip8_load_cartridge(&state, cart);
   fclose(cart);
 
-  while(true) {
-	  uint16_t opcode = decoder_get_current_opcode(&state);
-	  instruction_t instruction = decoder_opcode_to_instruction(opcode);
-	  decoder_execute_instruction(&state, instruction);
+  while (true) {
+    uint16_t opcode = decoder_get_current_opcode(&state);
+    instruction_t instruction = decoder_opcode_to_instruction(opcode);
+    decoder_execute_instruction(&state, instruction);
   }
 
   return 0;
