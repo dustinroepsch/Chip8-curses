@@ -23,16 +23,12 @@ int main(int argc, char **argv)
 	chip8_load_cartridge(&state, cart);
 	fclose(cart);
 
-	opcode_t test_opcode = {.bits = 0xABCD};
-	printf(
-		"I = %x, X = %x, Y = %x, J = %x, NNN = %x, KK = %x \n",
-		test_opcode.I,
-		test_opcode.X,
-		test_opcode.Y,
-		test_opcode.J,
-		test_opcode.NNN,
-		test_opcode.KK);
+	uint8_t current_opcode = decoder_get_current_opcode(&state);
+	while (current_opcode != 0) {
+		decoder_execute_instraction(decoder_opcode_to_instruction(current_opcode));
+		current_opcode = decoder_get_current_opcode(&state);
+		state.pc = state.pc + 2;
+	}
 
-	chip8_state_free(&state);
 	return 0;
 }

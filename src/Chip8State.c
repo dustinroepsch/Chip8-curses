@@ -28,5 +28,5 @@ void chip8_load_cartridge(chip8_state_t *state, FILE *cart)
     size_t file_length = ftell(cart);
     rewind(cart);
 
-    fread(state->memory, file_length, 1, cart);
+    fread(state->memory + 0x200 - 1, file_length, 1, cart);
 }

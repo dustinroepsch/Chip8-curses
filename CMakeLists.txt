@@ -11,7 +11,7 @@ set(CMAKE_C_FLAGS "-std=c11")
 find_package(Curses REQUIRED)
 include_directories(${CURSES_INCLUDE_DIR}/src)
 
-add_executable (Chip8 src/main.c src/Chip8State.c)
+add_executable (Chip8 src/main.c src/Chip8State.c src/decoder.c)
 
 set_property(TARGET Chip8 PROPERTY C_STANDARD 11)
 

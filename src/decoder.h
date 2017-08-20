@@ -1,36 +1,23 @@
 #ifndef CHIP8_DECODER_H
 #define CHIP8_DECODER_H
 
-/*
-    Provides convienent access to different parts of the opcode
-    the first nibble is always the instruction to be performed,
-    but the other 3 nibbles can be divided the following ways:
+#include <stdint.h>
+#include "Chip8State.h"
 
-    INNN
-    IXKK
-    IXYJ 
-*/
-typedef union {
-    uint16_t bits : 16;
-    struct
-    {
-        uint8_t I : 4;
-        union {
-            uint16_t NNN : 12;
-            struct
-            {
-                uint8_t X : 4;
-                union {
-                    uint8_t KK : 8;
-                    struct
-                    {
-                        uint8_t Y : 4;
-                        uint8_t J : 4;
-                    };
-                };
-            };
-        };
-    };
-} opcode_t;
+typedef struct {
+    uint8_t I;
+    uint8_t X;
+    uint8_t Y;
+    uint8_t J;
+    uint16_t NNN;
+    uint8_t KK;
+} instruction_t;
+
+uint16_t decoder_get_current_opcode(chip8_state_t* state);
+
+instruction_t decoder_opcode_to_instruction(uint16_t opcode);
+
+void decoder_execute_instruction(chip8_state_t* state, instruction_t instruction);
+
 
 #endif
