@@ -27,10 +27,30 @@ int main(int argc, char **argv) {
   struct timespec time_since_last_cycle;
   clock_gettime(CLOCK_MONOTONIC, &time_since_last_cycle);
 
+  if (!DEBUG){
+    initscr();
+    noecho();
+  }
+  
+
   while (true) {
     uint16_t opcode = decoder_get_current_opcode(&state);
     instruction_t instruction = decoder_opcode_to_instruction(opcode);
     decoder_execute_instruction(&state, instruction);
+
+    //draw the screen
+    if (!DEBUG) {
+      for (size_t row = 0; row < CHIP8_SCREEN_HEIGHT; row++) {
+        for (size_t col = 0; col < CHIP8_SCREEN_WIDTH; col++) {
+          size_t screen_index = row * CHIP8_SCREEN_WIDTH + col;
+          mvaddch(row, col, state.screen[screen_index] ? '#' : ' ');
+        }
+      }
+      refresh();
+    }
+    
+
+    //slow loop down to 60HZ
     struct timespec current_time;
     clock_gettime(CLOCK_MONOTONIC, &current_time);
     while (current_time.tv_nsec - time_since_last_cycle.tv_nsec <
