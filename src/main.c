@@ -17,7 +17,7 @@ void get_keyboard_input(chip8_state_t *state) {
   }
   // update the keyboard
   memset(state->keyboard, false, sizeof(bool) * 16);
-  
+
   switch (input) {
   case '1':
     state->keyboard[1] = true;
