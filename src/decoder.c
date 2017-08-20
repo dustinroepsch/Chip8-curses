@@ -3,9 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
-
-#define debug_printf(fmt, ...) do { if (DEBUG) printf(fmt, __VA_ARGS__); } while (0)
+#define debug_printf(fmt, ...)                                                 \
+  do {                                                                         \
+    if (DEBUG)                                                                 \
+      printf(fmt, __VA_ARGS__);                                                \
+  } while (0)
 
 uint16_t decoder_get_current_opcode(chip8_state_t *state) {
   uint16_t current_pc = state->pc;
@@ -30,13 +32,17 @@ instruction_t decoder_opcode_to_instruction(uint16_t opcode) {
 
 void decoder_execute_instruction(chip8_state_t *state,
                                  instruction_t instruction) {
+                                    if (state->delay_timer > 0) state->delay_timer--;
+                                    if (state->sound_timer >0) state->sound_timer--;
+
+
   debug_printf("%x ", instruction.full_opcode);
   switch (instruction.I) {
   case 0x0:
     switch (instruction.full_opcode) {
     case 0x00E0:
 
-      //debug_printf("clearscr\n");
+      // debug_printf("clearscr\n");
 
       memset(state->screen, false,
              sizeof(bool) * CHIP8_SCREEN_HEIGHT * CHIP8_SCREEN_WIDTH);
@@ -92,7 +98,7 @@ void decoder_execute_instruction(chip8_state_t *state,
     break;
   case 0x7:
     debug_printf("set v[%x] = v[%x] + %x\n", instruction.X, instruction.X,
-           instruction.KK);
+                 instruction.KK);
     state->v[instruction.X] = state->v[instruction.X] + instruction.KK;
     state->pc = state->pc + 2;
     break;
@@ -105,28 +111,28 @@ void decoder_execute_instruction(chip8_state_t *state,
       break;
     case 0x1:
       debug_printf("v[%x] = v[%x] or v[%x]\n", instruction.X, instruction.X,
-             instruction.Y);
+                   instruction.Y);
       state->v[instruction.X] =
           state->v[instruction.X] | state->v[instruction.Y];
       state->pc = state->pc + 2;
       break;
     case 0x2:
       debug_printf("v[%x] = v[%x] and v[%x]\n", instruction.X, instruction.X,
-             instruction.Y);
+                   instruction.Y);
       state->v[instruction.X] =
           state->v[instruction.X] & state->v[instruction.Y];
       state->pc = state->pc + 2;
       break;
     case 0x3:
       debug_printf("v[%x] = v[%x] xor v[%x]\n", instruction.X, instruction.X,
-             instruction.Y);
+                   instruction.Y);
       state->v[instruction.X] =
           state->v[instruction.X] ^ state->v[instruction.Y];
       state->pc = state->pc + 2;
       break;
     case 0x4:
       debug_printf("Set V[%x] = V[%x] + V[%x], set VF = carry\n", instruction.X,
-             instruction.X, instruction.Y);
+                   instruction.X, instruction.Y);
       uint32_t x = state->v[instruction.X];
       uint32_t y = state->v[instruction.Y];
       if (x + y > 255) {
@@ -139,8 +145,8 @@ void decoder_execute_instruction(chip8_state_t *state,
       state->pc = state->pc + 2;
       break;
     case 0x5:
-      debug_printf("Set V[%x] = V[%x] - V[%x], set VF = NOT borrow\n", instruction.X,
-             instruction.X, instruction.Y);
+      debug_printf("Set V[%x] = V[%x] - V[%x], set VF = NOT borrow\n",
+                   instruction.X, instruction.X, instruction.Y);
       if (state->v[instruction.X] > state->v[instruction.Y]) {
         state->v[0xF] = 0x1;
       } else {
@@ -161,8 +167,8 @@ void decoder_execute_instruction(chip8_state_t *state,
       state->pc = state->pc + 2;
       break;
     case 0x7:
-      debug_printf("Set V[%x] = V[%x] - V[%x], set VF = NOT borrow.\n", instruction.X,
-             instruction.Y, instruction.X);
+      debug_printf("Set V[%x] = V[%x] - V[%x], set VF = NOT borrow.\n",
+                   instruction.X, instruction.Y, instruction.X);
       if (state->v[instruction.Y] > state->v[instruction.X]) {
         state->v[0xF] = 0x1;
       } else {
@@ -190,7 +196,7 @@ void decoder_execute_instruction(chip8_state_t *state,
     if (instruction.J != 0x0)
       goto UNIMPL;
     debug_printf("Skip next instruction if V[%x] != V[%x].\n", instruction.X,
-           instruction.Y);
+                 instruction.Y);
     if (state->v[instruction.X] != state->v[instruction.Y]) {
       state->pc = state->pc + 2;
     }
@@ -210,9 +216,10 @@ void decoder_execute_instruction(chip8_state_t *state,
     state->v[instruction.X] = (rand() % 256) & instruction.KK;
     state->pc = state->pc + 2;
   case 0xD:
-    debug_printf("Display %x-byte sprite starting at memory location I at (V[%x], "
-           "V[%x]), set VF = collision.\n",
-           instruction.J, instruction.X, instruction.Y);
+    debug_printf(
+        "Display %x-byte sprite starting at memory location I at (V[%x], "
+        "V[%x]), set VF = collision.\n",
+        instruction.J, instruction.X, instruction.Y);
     bool collision = false;
     for (size_t offset = 0; offset < instruction.J; offset++) {
       uint8_t current_byte = state->memory[state->I + offset];
@@ -220,7 +227,8 @@ void decoder_execute_instruction(chip8_state_t *state,
       for (size_t bit = 0; bit < 8; bit++) {
         if ((current_byte & (1 << (7 - bit))) != 0) {
           size_t screen_offset =
-              (state->v[instruction.Y] + offset) * CHIP8_SCREEN_WIDTH + state->v[instruction.X] + bit;
+              (state->v[instruction.Y] + offset) * CHIP8_SCREEN_WIDTH +
+              state->v[instruction.X] + bit;
           if (state->screen[screen_offset]) {
             collision = true;
           }
@@ -243,9 +251,10 @@ void decoder_execute_instruction(chip8_state_t *state,
       state->pc = state->pc + 2;
       break;
     case 0xA1:
-      debug_printf("Skip next instruction if key with the value of V[%x] not is "
-             "pressed.\n",
-             instruction.X);
+      debug_printf(
+          "Skip next instruction if key with the value of V[%x] not is "
+          "pressed.\n",
+          instruction.X);
       if (!state->keyboard[state->v[instruction.X]]) {
         state->pc = state->pc + 2;
       }
@@ -263,8 +272,9 @@ void decoder_execute_instruction(chip8_state_t *state,
       state->pc = state->pc + 2;
       break;
     case 0x0A:
-      debug_printf("Wait for a key press, store the value of the key in V[%x].\n",
-             instruction.X);
+      debug_printf(
+          "Wait for a key press, store the value of the key in V[%x].\n",
+          instruction.X);
       // TODO
       break;
     case 0x15:
@@ -283,14 +293,16 @@ void decoder_execute_instruction(chip8_state_t *state,
       state->pc = state->pc + 2;
       break;
     case 0x29:
-      debug_printf("Set I = location of sprite for digit V[%x]\n", instruction.X);
+      debug_printf("Set I = location of sprite for digit V[%x]\n",
+                   instruction.X);
       state->I = 5 * state->v[instruction.X];
       state->pc = state->pc + 2;
       break;
     case 0x33:
-      debug_printf("Store BCD representation of V[%x] in memory locations I, I+1, "
-             "and I+2",
-             instruction.X);
+      debug_printf(
+          "Store BCD representation of V[%x] in memory locations I, I+1, "
+          "and I+2",
+          instruction.X);
       uint8_t n = state->v[instruction.X];
       state->memory[state->I] = n / 100;
       state->memory[state->I + 1] = (n % 100) / 10;
