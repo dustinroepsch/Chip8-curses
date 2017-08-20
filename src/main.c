@@ -2,8 +2,13 @@
 #include "decoder.h"
 #include <ncurses.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define NANOS_BETWEEN_CYCLES 16666666
 
 int main(int argc, char **argv) {
+  srand(time(NULL));
   // open the cartridge file
   FILE *cart;
   if (argc >= 2) {
@@ -19,11 +24,23 @@ int main(int argc, char **argv) {
   chip8_load_cartridge(&state, cart);
   fclose(cart);
 
+  struct timespec time_since_last_cycle;
+  clock_gettime(CLOCK_MONOTONIC, &time_since_last_cycle);
+
   while (true) {
     uint16_t opcode = decoder_get_current_opcode(&state);
     instruction_t instruction = decoder_opcode_to_instruction(opcode);
     decoder_execute_instruction(&state, instruction);
+    struct timespec current_time;
+    clock_gettime(CLOCK_MONOTONIC, &current_time);
+    while (current_time.tv_nsec - time_since_last_cycle.tv_nsec <
+           NANOS_BETWEEN_CYCLES) {
+      clock_gettime(CLOCK_MONOTONIC, &current_time);
+      if (current_time.tv_nsec - time_since_last_cycle.tv_nsec < 0) {
+        break;
+      }
+    }
+    clock_gettime(CLOCK_MONOTONIC, &time_since_last_cycle);
   }
-
   return 0;
 }
