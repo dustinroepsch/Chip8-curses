@@ -216,6 +216,7 @@ void decoder_execute_instruction(chip8_state_t *state,
     debug_printf("Set V[%x] = random byte AND kk.\n", instruction.X);
     state->v[instruction.X] = (rand() % 256) & instruction.KK;
     state->pc = state->pc + 2;
+    break;
   case 0xD:
     debug_printf(
         "Display %x-byte sprite starting at memory location I at (V[%x], "
@@ -223,7 +224,7 @@ void decoder_execute_instruction(chip8_state_t *state,
         instruction.J, instruction.X, instruction.Y);
     bool collision = false;
 
-    //x and y wrap around the screen
+    // x and y wrap around the screen
     size_t x = state->v[instruction.X];
     x = x % CHIP8_SCREEN_WIDTH;
 
