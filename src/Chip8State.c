@@ -7,6 +7,7 @@ void chip8_state_init(chip8_state_t *state) {
   state->v = calloc(16, sizeof(uint8_t));
   state->stack = calloc(16, sizeof(uint16_t));
   state->keyboard = calloc(16, sizeof(bool));
+  state->keyboard_time_left = calloc(16, sizeof(uint8_t));
   state->screen =
       calloc(CHIP8_SCREEN_HEIGHT * CHIP8_SCREEN_WIDTH, sizeof(bool));
   state->I = 0;
@@ -47,6 +48,7 @@ void chip8_state_free(chip8_state_t *state) {
   free(state->stack);
   free(state->keyboard);
   free(state->screen);
+  free(state->keyboard_time_left);
 }
 
 void chip8_load_cartridge(chip8_state_t *state, FILE *cart) {
@@ -55,4 +57,10 @@ void chip8_load_cartridge(chip8_state_t *state, FILE *cart) {
   rewind(cart);
 
   fread(state->memory + 0x200, file_length, 1, cart);
+}
+
+void chip8_decrement_keyboard_timeout(chip8_state_t* state) {
+  for (size_t i = 0; i < 16; i++) {
+    if (state->keyboard_time_left[i] > 0) state->keyboard_time_left[i]--;
+  }
 }

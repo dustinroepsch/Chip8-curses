@@ -8,109 +8,105 @@
 
 #define OVERCLOCK_FACTOR 0.12
 #define NANOS_BETWEEN_CYCLES (16666666 * OVERCLOCK_FACTOR)
+#define KEYBOARD_TIMEOUT_CYCLES 50
 
 void get_keyboard_input(chip8_state_t *state) {
-
+  
   char input = getch();
-  if (input == ERR) {
-    return;
-  }
-  // update the keyboard
-  memset(state->keyboard, false, sizeof(bool) * 16);
-
+  
   switch (input) {
   case '1':
-    state->keyboard[1] = true;
+    state->keyboard_time_left[1] = KEYBOARD_TIMEOUT_CYCLES;
     if (state->waiting_for_key_press) {
       state->v[state->register_to_save_key] = 1;
     }
     break;
   case '2':
-    state->keyboard[2] = true;
+    state->keyboard_time_left[2] = KEYBOARD_TIMEOUT_CYCLES;
     if (state->waiting_for_key_press) {
       state->v[state->register_to_save_key] = 2;
     }
     break;
   case '3':
-    state->keyboard[3] = true;
+    state->keyboard_time_left[3] = KEYBOARD_TIMEOUT_CYCLES;
     if (state->waiting_for_key_press) {
       state->v[state->register_to_save_key] = 3;
     }
     break;
   case '4':
-    state->keyboard[0xC] = true;
+    state->keyboard_time_left[0xC] = KEYBOARD_TIMEOUT_CYCLES;
     if (state->waiting_for_key_press) {
       state->v[state->register_to_save_key] = 0xC;
     }
     break;
   case 'q':
-    state->keyboard[4] = true;
+    state->keyboard_time_left[4] = KEYBOARD_TIMEOUT_CYCLES;
     if (state->waiting_for_key_press) {
       state->v[state->register_to_save_key] = 4;
     }
     break;
   case 'w':
-    state->keyboard[5] = true;
+    state->keyboard_time_left[5] = KEYBOARD_TIMEOUT_CYCLES;
     if (state->waiting_for_key_press) {
       state->v[state->register_to_save_key] = 5;
     }
     break;
   case 'e':
-    state->keyboard[6] = true;
+    state->keyboard_time_left[6] = KEYBOARD_TIMEOUT_CYCLES;
     if (state->waiting_for_key_press) {
       state->v[state->register_to_save_key] = 6;
     }
     break;
   case 'r':
-    state->keyboard[0xD] = true;
+    state->keyboard_time_left[0xD] = KEYBOARD_TIMEOUT_CYCLES;
     if (state->waiting_for_key_press) {
       state->v[state->register_to_save_key] = 0xD;
     }
     break;
   case 'a':
-    state->keyboard[7] = true;
+    state->keyboard_time_left[7] = KEYBOARD_TIMEOUT_CYCLES;
     if (state->waiting_for_key_press) {
       state->v[state->register_to_save_key] = 7;
     }
     break;
   case 's':
-    state->keyboard[8] = true;
+    state->keyboard_time_left[8] = KEYBOARD_TIMEOUT_CYCLES;
     if (state->waiting_for_key_press) {
       state->v[state->register_to_save_key] = 8;
     }
     break;
   case 'd':
-    state->keyboard[9] = true;
+    state->keyboard_time_left[9] = KEYBOARD_TIMEOUT_CYCLES;
     if (state->waiting_for_key_press) {
       state->v[state->register_to_save_key] = 9;
     }
     break;
   case 'f':
-    state->keyboard[0xE] = true;
+    state->keyboard_time_left[0xE] = KEYBOARD_TIMEOUT_CYCLES;
     if (state->waiting_for_key_press) {
       state->v[state->register_to_save_key] = 0xE;
     }
     break;
   case 'z':
-    state->keyboard[0xA] = true;
+    state->keyboard_time_left[0xA] = KEYBOARD_TIMEOUT_CYCLES;
     if (state->waiting_for_key_press) {
       state->v[state->register_to_save_key] = 0xA;
     }
     break;
   case 'x':
-    state->keyboard[0] = true;
+    state->keyboard_time_left[0] = KEYBOARD_TIMEOUT_CYCLES;
     if (state->waiting_for_key_press) {
       state->v[state->register_to_save_key] = 0;
     }
     break;
   case 'c':
-    state->keyboard[0xB] = true;
+    state->keyboard_time_left[0xB] = KEYBOARD_TIMEOUT_CYCLES;
     if (state->waiting_for_key_press) {
       state->v[state->register_to_save_key] = 0xB;
     }
     break;
   case 'v':
-    state->keyboard[0xF] = true;
+    state->keyboard_time_left[0xF] = KEYBOARD_TIMEOUT_CYCLES;
     if (state->waiting_for_key_press) {
       state->v[state->register_to_save_key] = 0xF;
     }
@@ -118,10 +114,15 @@ void get_keyboard_input(chip8_state_t *state) {
   default:
     break;
   }
-  if (state->waiting_for_key_press) {
+  if (state->waiting_for_key_press && input != ERR) {
     state->pc = state->pc + 2;
+    state->waiting_for_key_press = false;
   }
-  state->waiting_for_key_press = false;
+
+  for (size_t i = 0; i < 16; i++) {
+    state->keyboard[i] = state->keyboard_time_left[i] > 0;
+  }
+  
 }
 
 int main(int argc, char **argv) {
@@ -155,6 +156,7 @@ int main(int argc, char **argv) {
     uint16_t opcode = decoder_get_current_opcode(&state);
     instruction_t instruction = decoder_opcode_to_instruction(opcode);
     decoder_execute_instruction(&state, instruction);
+    chip8_decrement_keyboard_timeout(&state);
 
     if (!DEBUG) {
       // draw the screen
