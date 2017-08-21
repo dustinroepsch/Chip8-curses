@@ -11,9 +11,9 @@
 #define KEYBOARD_TIMEOUT_CYCLES 50
 
 void get_keyboard_input(chip8_state_t *state) {
-  
+
   char input = getch();
-  
+
   switch (input) {
   case '1':
     state->keyboard_time_left[1] = KEYBOARD_TIMEOUT_CYCLES;
@@ -122,7 +122,6 @@ void get_keyboard_input(chip8_state_t *state) {
   for (size_t i = 0; i < 16; i++) {
     state->keyboard[i] = state->keyboard_time_left[i] > 0;
   }
-  
 }
 
 int main(int argc, char **argv) {

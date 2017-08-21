@@ -59,8 +59,9 @@ void chip8_load_cartridge(chip8_state_t *state, FILE *cart) {
   fread(state->memory + 0x200, file_length, 1, cart);
 }
 
-void chip8_decrement_keyboard_timeout(chip8_state_t* state) {
+void chip8_decrement_keyboard_timeout(chip8_state_t *state) {
   for (size_t i = 0; i < 16; i++) {
-    if (state->keyboard_time_left[i] > 0) state->keyboard_time_left[i]--;
+    if (state->keyboard_time_left[i] > 0)
+      state->keyboard_time_left[i]--;
   }
 }
