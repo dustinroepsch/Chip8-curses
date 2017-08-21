@@ -1,7 +1,7 @@
 #ifndef CHIP8_DECODER_H
 #define CHIP8_DECODER_H
 
-#define DEBUG 1
+#define DEBUG 0
 #include "Chip8State.h"
 #include <stdint.h>
 
