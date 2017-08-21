@@ -10,107 +10,36 @@
 #define NANOS_BETWEEN_CYCLES (16666666 * OVERCLOCK_FACTOR)
 #define KEYBOARD_TIMEOUT_CYCLES 50
 
+#define map_key(physical, virtual)                                             \
+  case physical:                                                               \
+    state->keyboard_time_left[virtual] = KEYBOARD_TIMEOUT_CYCLES;              \
+    if (state->waiting_for_key_press) {                                        \
+      state->v[state->register_to_save_key] = virtual;                         \
+    }                                                                          \
+    break;
+
 void get_keyboard_input(chip8_state_t *state) {
 
   char input = getch();
 
   switch (input) {
-  case '1':
-    state->keyboard_time_left[1] = KEYBOARD_TIMEOUT_CYCLES;
-    if (state->waiting_for_key_press) {
-      state->v[state->register_to_save_key] = 1;
-    }
-    break;
-  case '2':
-    state->keyboard_time_left[2] = KEYBOARD_TIMEOUT_CYCLES;
-    if (state->waiting_for_key_press) {
-      state->v[state->register_to_save_key] = 2;
-    }
-    break;
-  case '3':
-    state->keyboard_time_left[3] = KEYBOARD_TIMEOUT_CYCLES;
-    if (state->waiting_for_key_press) {
-      state->v[state->register_to_save_key] = 3;
-    }
-    break;
-  case '4':
-    state->keyboard_time_left[0xC] = KEYBOARD_TIMEOUT_CYCLES;
-    if (state->waiting_for_key_press) {
-      state->v[state->register_to_save_key] = 0xC;
-    }
-    break;
-  case 'q':
-    state->keyboard_time_left[4] = KEYBOARD_TIMEOUT_CYCLES;
-    if (state->waiting_for_key_press) {
-      state->v[state->register_to_save_key] = 4;
-    }
-    break;
-  case 'w':
-    state->keyboard_time_left[5] = KEYBOARD_TIMEOUT_CYCLES;
-    if (state->waiting_for_key_press) {
-      state->v[state->register_to_save_key] = 5;
-    }
-    break;
-  case 'e':
-    state->keyboard_time_left[6] = KEYBOARD_TIMEOUT_CYCLES;
-    if (state->waiting_for_key_press) {
-      state->v[state->register_to_save_key] = 6;
-    }
-    break;
-  case 'r':
-    state->keyboard_time_left[0xD] = KEYBOARD_TIMEOUT_CYCLES;
-    if (state->waiting_for_key_press) {
-      state->v[state->register_to_save_key] = 0xD;
-    }
-    break;
-  case 'a':
-    state->keyboard_time_left[7] = KEYBOARD_TIMEOUT_CYCLES;
-    if (state->waiting_for_key_press) {
-      state->v[state->register_to_save_key] = 7;
-    }
-    break;
-  case 's':
-    state->keyboard_time_left[8] = KEYBOARD_TIMEOUT_CYCLES;
-    if (state->waiting_for_key_press) {
-      state->v[state->register_to_save_key] = 8;
-    }
-    break;
-  case 'd':
-    state->keyboard_time_left[9] = KEYBOARD_TIMEOUT_CYCLES;
-    if (state->waiting_for_key_press) {
-      state->v[state->register_to_save_key] = 9;
-    }
-    break;
-  case 'f':
-    state->keyboard_time_left[0xE] = KEYBOARD_TIMEOUT_CYCLES;
-    if (state->waiting_for_key_press) {
-      state->v[state->register_to_save_key] = 0xE;
-    }
-    break;
-  case 'z':
-    state->keyboard_time_left[0xA] = KEYBOARD_TIMEOUT_CYCLES;
-    if (state->waiting_for_key_press) {
-      state->v[state->register_to_save_key] = 0xA;
-    }
-    break;
-  case 'x':
-    state->keyboard_time_left[0] = KEYBOARD_TIMEOUT_CYCLES;
-    if (state->waiting_for_key_press) {
-      state->v[state->register_to_save_key] = 0;
-    }
-    break;
-  case 'c':
-    state->keyboard_time_left[0xB] = KEYBOARD_TIMEOUT_CYCLES;
-    if (state->waiting_for_key_press) {
-      state->v[state->register_to_save_key] = 0xB;
-    }
-    break;
-  case 'v':
-    state->keyboard_time_left[0xF] = KEYBOARD_TIMEOUT_CYCLES;
-    if (state->waiting_for_key_press) {
-      state->v[state->register_to_save_key] = 0xF;
-    }
-    break;
+    map_key('1', 0x1);
+    map_key('2', 0x2);
+    map_key('3', 0x3);
+    map_key('4', 0xC);
+    map_key('q', 0x4);
+    map_key('w', 0x5);
+    map_key('e', 0x6);
+    map_key('r', 0xD);
+    map_key('a', 0x7);
+    map_key('s', 0x8);
+    map_key('d', 0x9);
+    map_key('f', 0xE);
+    map_key('z', 0xA);
+    map_key('x', 0x0);
+    map_key('c', 0xB);
+    map_key('v', 0xF);
+
   default:
     break;
   }
